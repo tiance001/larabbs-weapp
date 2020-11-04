@@ -122,6 +122,19 @@
     },
 
     methods: {
+      async loadCategories() {
+        // 从缓存中获取分类数据
+        let categories = wx.getStorageSync('categories')
+
+        if (!categories) {
+          const categoriesResponse = await getCategories()
+          categories = categoriesResponse.data.data
+
+          wx.setStorageSync('categories', categories)
+        }
+
+        this.categories = categories
+      },
       categorisToggle() {
         this.categoryOpen = !this.categoryOpen
       },
