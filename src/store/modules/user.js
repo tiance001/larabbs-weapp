@@ -16,7 +16,7 @@ const getDefaultState = () => {
 const state = getDefaultState()
 
 // 定义 getters
-var getters = {
+const getters = {
   isLoggedIn: state => !isEmpty(state.accessToken),
   user: state => state.user,
   accessToken: state => state.accessToken,
@@ -26,6 +26,14 @@ var getters = {
 
 // 定义 actions
 const actions = {
+  async register ({ dispatch }, params = {}) {
+    const loginData = await wepy.wx.login()
+    params.code = loginData.code
+
+    await register(params)
+
+    await dispatch('login')
+  },
   async login ({ dispatch, commit }, params = {}) {
     const loginData = await wepy.wx.login()
     params.code = loginData.code
@@ -42,6 +50,8 @@ const actions = {
 
     commit('setUser', userResponse.data)
     auth.setUser(userResponse.data)
+
+    dispatch('getPerms')
   },
   async getPerms ({ commit }) {
     const permResponse = await getPerms()
@@ -64,16 +74,7 @@ const actions = {
     auth.logout()
     commit('resetState')
   },
-  async register ({ dispatch }, params = {}) {
-    const loginData = await wepy.wx.login()
-    params.code = loginData.code
-
-    await register(params)
-
-    await dispatch('login')
-  },
   async updateUser ({ commit }, params = {}) {
-
     const editResponse = await updateUser(params)
 
     commit('setUser', editResponse.data)
@@ -86,15 +87,15 @@ const mutations = {
   setUser(state, user) {
     state.user = user
   },
+  setPerms(state, perms) {
+    state.perms = perms
+  },
   setToken(state, tokenPayload) {
     state.accessToken = tokenPayload.access_token
     state.accessTokenExpiredAt = new Date().getTime() + tokenPayload.expires_in * 1000
   },
   resetState: (state) => {
     Object.assign(state, getDefaultState())
-  },
-  setPerms(state, perms) {
-    state.perms = perms
   }
 }
 

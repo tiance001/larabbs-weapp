@@ -6,7 +6,6 @@ module.exports = {
   eslint: true,
   cliLogs: !prod,
   static: ['./src/assets'],
-  // static: ['static'],
   build: {
   },
   resolve: {
